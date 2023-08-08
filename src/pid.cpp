@@ -16,15 +16,19 @@ namespace control {
     nd_ = calibrations.nd;
 
     ad_ = td_ / (td_ + nd_ * tp_);
-    ae_ = k * nd_ * td_ / (td_ + nd_ * tp_);
+    ae_ = kp_ * nd_ * td_ / (td_ + nd_ * tp_);
   }
 
   void Pid::Reset(void) {
+    tp_ = 0.0;
     kp_ = 0.0;
     ti_ = 0.0;
     td_ = 0.0;
     value_ = 0.0;
     use_d_filtering_ = true;
+    use_antiwindup_ = false;
+    min_control_ = 0.0;
+    max_control_ = 0.0;
   }
 
   void Pid::SetValue(const double value) {
@@ -36,11 +40,13 @@ namespace control {
     error_ = y - value_;
     prev_error_derivative_ = error_derivative_;
 
-    const auto control = CalculateProportionalPart()
+    control_ = CalculateProportionalPart()
       + CalculateIntegralPart()
       + CalculateDerivativePart();
 
-    return SaturateControl(control);
+    saturated_control_ = SaturateControl(control_);
+
+    return saturated_control_;
   }
 
   double Pid::CalculateProportionalPart(void) const {
@@ -48,8 +54,14 @@ namespace control {
   }
 
   double Pid::CalculateIntegralPart(void) {
-    error_integral_ += error_ * tp_;
-    return error_integral_ * kp_ * tp_ / ti_;
+    if (use_antiwindup_)
+      integrated_signal_ = (error_ * kp_ / ti_) + ((saturated_control_ - control_) / ti_);
+    else
+      integrated_signal_ = error_ * kp_ / ti_;
+
+    error_integral_ += integrated_signal_ * tp_;
+
+    return error_integral_;
   }
 
   double Pid::CalculateDerivativePart(void) {

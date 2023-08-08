@@ -37,12 +37,17 @@ namespace control {
       double error_integral_ = 0.0;
       double error_derivative_ = 0.0;
       double prev_error_derivative_ = 0.0;
+      double integrated_signal_ = 0.0;
 
       bool use_d_filtering_ = true;
+      bool use_antiwindup_ = true;
 
       double ad_ = 0.0;
       double ae_ = 0.0;
       double nd_ = 0.0;
+
+      double control_ = 0.0;
+      double saturated_control_ = 0.0;
   };
 }
 
