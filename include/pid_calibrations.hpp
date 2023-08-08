@@ -3,9 +3,13 @@
 
 namespace control {
   struct PidCalibrations {
+    double tp = 0.0;
+
     double kp = 0.0;
-    double ki = 0.0;
-    double kd = 0.0;
+    double ti = 0.0;
+    double td = 0.0;
+
+    double nd = 0.0;
 
     double min_control = 0.0;
     double max_control = 0.0;

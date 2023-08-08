@@ -16,12 +16,33 @@ namespace control {
       double GetControl(const double y);
 
     private:
+      double CalculateProportionalPart(void) const;
+      double CalculateIntegralPart(void);
+      double CalculateDerivativePart(void);
+
+      double SaturateControl(const double control) const;
+
+      double tp_ = 0.0;
+
       double kp_ = 0.0;
-      double ki_ = 0.0;
-      double kd_ = 0.0;
+      double ti_ = 0.0;
+      double td_ = 0.0;
+
+      double min_control_ = 0.0;
+      double max_control_ = 0.0;
 
       double value_ = 0.0;
       double error_ = 0.0;
+      double prev_error_ = 0.0;
+      double error_integral_ = 0.0;
+      double error_derivative_ = 0.0;
+      double prev_error_derivative_ = 0.0;
+
+      bool use_d_filtering_ = true;
+
+      double ad_ = 0.0;
+      double ae_ = 0.0;
+      double nd_ = 0.0;
   };
 }
 
