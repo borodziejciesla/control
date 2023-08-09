@@ -2,6 +2,7 @@
 #define CONTROL_INCLUDE_HPP_
 
 #include "pid_calibrations.hpp"
+#include "pid_type.hpp"
 
 namespace control {
   class Pid {
@@ -15,12 +16,15 @@ namespace control {
       void SetValue(const double value);
       double GetControl(const double y);
 
+      bool MakeSelfTuning(double & control);
+
     private:
       double CalculateProportionalPart(void) const;
       double CalculateIntegralPart(void);
       double CalculateDerivativePart(void);
 
       double SaturateControl(const double control) const;
+      void SetZieglerNicholsTuning(const PidType pid_type);
 
       double tp_ = 0.0;
 
@@ -48,6 +52,9 @@ namespace control {
 
       double control_ = 0.0;
       double saturated_control_ = 0.0;
+
+      double ku_ = 0.0;
+      double tu_ = 0.0;
   };
 }
 
