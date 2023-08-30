@@ -20,6 +20,7 @@ include(GNUInstallDirs)
 
 add_library(${PROJECT_NAME}
     src/pid.cpp
+    src/mpc.cpp
 
     # $<TARGET_OBJECTS:dealiaser>
 )
