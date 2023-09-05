@@ -8,6 +8,9 @@ namespace control {
   struct MpcCalibrations {
     std::array<double, state_size> q;
     std::array<double, predictions_step_number> r;
+
+    std::array<std::array<double, state_size>, state_size> transition_matrix;
+    std::array<double, state_size> control_matrix;
   };
 }
 

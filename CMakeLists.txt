@@ -10,13 +10,15 @@ set(TEST_PROJECT_NAME ${PROJECT_NAME}_tests)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-option(BUILD_TESTS "Build tests" OFF)
+option(BUILD_TESTS "Build tests" ON)
 # option(BUILD_EXAMPLE "Build example" ON)
 
 ###############################################
 ################## Library ####################
 ###############################################
 include(GNUInstallDirs)
+
+find_package(Eigen3 REQUIRED QUIET)
 
 add_library(${PROJECT_NAME}
     src/pid.cpp
@@ -27,6 +29,10 @@ add_library(${PROJECT_NAME}
 target_include_directories(${PROJECT_NAME}
     PUBLIC
         include
+)
+
+target_link_libraries(${PROJECT_NAME}
+    Eigen3::Eigen
 )
 
 ###############################################
