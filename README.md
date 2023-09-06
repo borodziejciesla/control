@@ -1,13 +1,13 @@
 # Controllers C++ implementations
 Linear object:
 * Continuous:
-    $$
-        \dot{x}(t) = Ax(t) + Bu(t)
-    $$
+$$
+    \dot{x}(t) = Ax(t) + Bu(t)
+$$
 * Discrete: 
-    $$
-        x_{k+1} = Ax_{k} + Bu_{k}
-    $$
+$$
+    x_{k+1} = Ax_{k} + Bu_{k}
+$$
 
 ## PID
 $$
