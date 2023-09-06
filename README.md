@@ -1,3 +1,5 @@
+[![CodeFactor](https://www.codefactor.io/repository/github/borodziejciesla/control/badge)](https://www.codefactor.io/repository/github/borodziejciesla/control)
+
 # Controllers C++ implementations
 Linear object:
 * Continuous: $\dot{x}(t) = Ax(t) + Bu(t)$
