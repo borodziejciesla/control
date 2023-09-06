@@ -47,54 +47,55 @@ namespace control {
       void ConvertTransitionAndControlMatrix(const MpcCalibrations<state_size, predictions_step_number> & calibrations) {
         // Transition
         for (auto row = 0u; row < state_size; row++) {
-          for (auto col = 0u; col < state_size; col++)
+          for (auto col = 0u; col < state_size; col++) {
             transition_matrix_(row, col) = calibrations.transition_matrix.at(row).at(col);
+          }
         }
 
         // Control
         for (auto row = 0u; row < state_size; row++)
-          control_matrix_(row, 1u) = calibrations.control_matrix.at(row);
+          control_matrix_(row, 0u) = calibrations.control_matrix.at(row);
       }
 
       void SetRAndQ(const MpcCalibrations<state_size, predictions_step_number> & calibrations) {
         // Q
-        q_ = Eigen::Matrix<double, state_size * predictions_step_number, state_size * predictions_step_number>::Zeros();
+        q_ = Eigen::Matrix<double, state_size * predictions_step_number, state_size * predictions_step_number>::Zero();
         for (auto step_index = 0u; step_index < predictions_step_number; step_index++) {
           for (auto state_index = 0u; state_index < state_size; state_index++) {
             const auto index = step_index * state_size + state_index;
-            q_(index, index) = calibrations.q.at(index);
+            q_(index, index) = calibrations.q.at(state_index);
           }
         }
 
         // R
-        r_ = Eigen::Matrix<double, predictions_step_number * predictions_step_number, predictions_step_number * predictions_step_number>::Zeros();
+        r_ = Eigen::Matrix<double, predictions_step_number * predictions_step_number, predictions_step_number * predictions_step_number>::Zero();
         for (auto step_index = 0u; step_index < predictions_step_number; step_index++) {
           for (auto control_index = 0u; control_index < predictions_step_number; control_index++) {
             const auto index = step_index * state_size + control_index;
-            r_(index, index) = calibrations.r.at(index);
+            r_(index, index) = calibrations.r.at(control_index);
           }
         }
       }
 
       void SetSxAndSu(void) {
-        sx_ = Eigen::Matrix<double, state_size * predictions_step_number, state_size>::Zeros();
-        su_ = Eigen::Matrix<double, state_size * predictions_step_number, predictions_step_number>::Zeros();
+        sx_ = Eigen::Matrix<double, state_size * predictions_step_number, state_size>::Zero();
+        su_ = Eigen::Matrix<double, state_size * predictions_step_number, predictions_step_number>::Zero();
 
-        sx_.block<state_size, state_size>(0u, 0u) = Eigen::Matrix<double, state_size, state_size>::Identity();
+        sx_.block(0u, 0u, state_size, state_size) = Eigen::Matrix<double, state_size, state_size>::Identity();
 
         for (auto step_index = 1u; step_index < predictions_step_number; step_index++) {
           // Sx
-          sx_.block<state_size, state_size>(step_index * state_size, step_index * state_size)
-            = sx_.block<state_size, state_size>((step_index - 1u) * state_size, 0u) * transition_matrix_;
+          sx_.block(step_index * state_size, 0u, state_size, state_size)
+            = sx_.block((step_index - 1u) * state_size, 0u, state_size, state_size) * transition_matrix_;
           // Sy
           for (auto index = 0u; index < predictions_step_number; index++)
-            su_.block<state_size, 1u>(step_index * state_size, 1) 
-              = sx_.block<state_size, state_size>(index * state_size, 0) * control_matrix_;
+            su_.block(step_index * state_size, 1, state_size, 1u) 
+              = sx_.block(index * state_size, 0, state_size, state_size) * control_matrix_;
         }
       }
 
       void CalculateControl(void) {
-        const auto h = su_.transpose() * q_ * su_ + r_;
+        const auto h = su_.transpose() * q_ * su_;// + r_;
         const auto f = sx_.transpose() * q_ * sx_;
 
         const auto u = h.inverse() * f * state_;
