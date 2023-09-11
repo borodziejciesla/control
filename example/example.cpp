@@ -17,9 +17,9 @@ int main(void) {
   constexpr auto state_size = 2u;
 
   control_example::Object<state_size>::TransitionMatrix transition_matrix;
-  transition_matrix << -1.0, 1.0, 0.0, -1.0;
+  transition_matrix << 0.9048, 0.9048, 0.0, 0.9048;
   control_example::Object<state_size>::ControlMatrix control_matrix;
-  control_matrix << 0.0, 1.0;
+  control_matrix << 0.4679, 0.9516;
 
   control_example::Object<state_size> object(transition_matrix, control_matrix);
 
@@ -32,28 +32,28 @@ int main(void) {
 
   control::PidCalibrations pid_calibrations;
   pid_calibrations.tp = 1.0;
-  pid_calibrations.kp = 1.0;
-  pid_calibrations.ti = 0.0;
-  pid_calibrations.td = 0.0;
-  pid_calibrations.nd = 0.0;
+  pid_calibrations.kp = 0.0591468060510979;
+  pid_calibrations.ti = 1.0 / 0.0422741631781744;
+  pid_calibrations.td = 0.415679128351623;
+  pid_calibrations.nd = 1.03550294575802;
   pid_calibrations.min_control = -inf;
   pid_calibrations.max_control = inf;
-  pid_calibrations.use_d_filtering = false;
+  pid_calibrations.use_d_filtering = true;
   pid_calibrations.use_antiwindup = false;
 
   pid.SetCalibrations(pid_calibrations);
 
   // Create MPC
-  constexpr auto prediction_steps_number = 10u;
+  constexpr auto prediction_steps_number = 2u;
   control::Mpc<state_size, prediction_steps_number> mpc;
   
   control::MpcCalibrations<state_size, prediction_steps_number> mpc_calibrations;
 
   mpc_calibrations.q = {1.0, 1.0};
   mpc_calibrations.r = {1.0, 1.0};
-  mpc_calibrations.transition_matrix.at(0u) = {-0.1, 0.0};
-  mpc_calibrations.transition_matrix.at(1u) = {0.0, 0.1};
-  mpc_calibrations.control_matrix = {0.0, 1.0};
+  mpc_calibrations.transition_matrix.at(0u) = {0.9048, 0.9048};
+  mpc_calibrations.transition_matrix.at(1u) = {0.0, 0.9048};
+  mpc_calibrations.control_matrix = {0.4679, 0.9516};
   
   mpc.SetCalibrations(mpc_calibrations);
 
@@ -63,6 +63,24 @@ int main(void) {
   std::vector<double> timestamps;
   for (auto index = 0u; index < simulation_length; index++)
     timestamps.push_back(static_cast<double>(index));
+
+  // No control
+  object.SetState(initial_state);
+
+  std::vector<double> uncontrolled_x1;
+  std::vector<double> uncontrolled_x2;
+  std::vector<double> uncontrolled_output;
+
+  for (auto index = 0u; index < simulation_length; index++) {
+    const auto state = object.GetState();
+    uncontrolled_x1.push_back(state(0u));
+    uncontrolled_x2.push_back(state(1u));
+
+    const auto y = state(0u);
+    uncontrolled_output.push_back(y);
+
+    object.Run(0.0);
+  }
 
   // PID
   object.SetState(initial_state);
@@ -83,7 +101,7 @@ int main(void) {
     pid_output.push_back(y);
 
     const auto control = pid.GetControl(y);
-    pid_control.push_back(-control);
+    pid_control.push_back(control);
 
     object.Run(control);
   }
@@ -108,13 +126,16 @@ int main(void) {
     mpc_output.push_back(y);
 
     std::array<double, 2u> state_array = {state(0u), state(1u)}; 
-    //const auto control = mpc.GetControl(state_array);
-    //mpc_control.push_back(control);
+    const auto control = mpc.GetControl(state_array);
+    mpc_control.push_back(control);
+
+    object.Run(control);
   }
 
   /******** Make Plots ********/
   // Output
   plt::figure_size(500, 500);
+  plt::named_plot("No Control", timestamps, uncontrolled_output);
   plt::named_plot("PID", timestamps, pid_output);
   plt::named_plot("MPC", timestamps, mpc_output);
   plt::title("Output");

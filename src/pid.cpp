@@ -17,6 +17,8 @@ namespace control {
 
     ad_ = td_ / (td_ + nd_ * tp_);
     ae_ = kp_ * nd_ * td_ / (td_ + nd_ * tp_);
+
+    use_antiwindup_ = calibrations.use_antiwindup;
   }
 
   void Pid::Reset(void) {
@@ -37,7 +39,7 @@ namespace control {
 
   double Pid::GetControl(const double y) {
     prev_error_ = error_;
-    error_ = y - value_;
+    error_ = value_ - y;
     prev_error_derivative_ = error_derivative_;
 
     control_ = CalculateProportionalPart()
@@ -54,22 +56,26 @@ namespace control {
   }
 
   double Pid::CalculateIntegralPart(void) {
-    if (use_antiwindup_)
-      integrated_signal_ = (error_ * kp_ / ti_) + ((saturated_control_ - control_) / ti_);
-    else
-      integrated_signal_ = error_ * kp_ / ti_;
+    if (ti_ != 0.0) {
+      if (use_antiwindup_)
+        integrated_signal_ = (error_ * kp_ / ti_) + ((saturated_control_ - control_) / ti_);
+      else
+        integrated_signal_ = error_ * kp_ / ti_;
 
-    error_integral_ += integrated_signal_ * tp_;
+      error_integral_ += integrated_signal_ * tp_;
+    } else {
+      error_integral_ = 0.0;
+    }
 
     return error_integral_;
   }
 
   double Pid::CalculateDerivativePart(void) {
-    if (use_d_filtering_) {
-      return (error_ - prev_error_) * tp_ * td_;
+    if (!use_d_filtering_) {
+      return (error_ - prev_error_) / tp_ * td_;
     } else {
       error_derivative_ = ad_ * prev_error_derivative_ - ae_ * (error_ - prev_error_);
-      return error_derivative_;
+      return error_derivative_ * td_ * kp_;
     }
   }
 
