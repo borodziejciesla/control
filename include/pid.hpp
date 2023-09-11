@@ -22,6 +22,8 @@ namespace control {
 
       double SaturateControl(const double control) const;
 
+      void MakeSanityCheckOnParameters(const PidCalibrations & calibrations) const;
+
       double tp_ = 0.0;
 
       double kp_ = 0.0;
