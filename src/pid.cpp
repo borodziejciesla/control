@@ -21,8 +21,8 @@ namespace control {
 
     nd_ = calibrations.nd;
 
-    ad_ = td_ / (td_ + nd_ * tp_);
-    ae_ = -kp_ * nd_ * td_ / (td_ + nd_ * tp_);
+    ad_ = -(td_ * nd_ - td_) / (td_);//td_ / (td_ + nd_ * tp_);
+    ae_ = nd_ / td_;// -kp_ * nd_ * td_ / (td_ + nd_ * tp_);
 
     use_antiwindup_ = calibrations.use_antiwindup;
   }

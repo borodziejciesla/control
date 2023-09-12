@@ -6,8 +6,14 @@ Linear object:
 * Discrete: $x_{k+1} = Ax_{k} + Bu_{k}$
 
 ## PID
+Cntinuous form:
 $$
-    u(t) = K_{p}\left(e(t) + \frac{1}{T_{i}}\int_{0}^{t}{e(\gamma)d\gamma} + T_{d} \frac{d}{dt}e(t) \right)
+    u(s) = K_{p}\left(1 + T_{i}s + T_{d} + T_{d}\frac{s}{1 + s\frac{T_{d}}{N}} \right)e(s)
+$$
+
+Discrete form:
+$$
+    u(z) = K_{p} \left(1 + T_{i} \frac{z - 1}{T} + T_{d}\frac{\frac{z-1}{T}}{1+\frac{z-1}{T}\frac{T_{d}}{N}} \right) e(z)
 $$
 
 ### Anti-windup
