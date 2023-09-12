@@ -5,24 +5,25 @@ project("controller" VERSION 0.0.1
   HOMEPAGE_URL "https://github.com/borodziejciesla/control")
 
 set(TEST_PROJECT_NAME ${PROJECT_NAME}_tests)
-# set(EXAMPLE_PROJECT_NAME ${PROJECT_NAME}_example)
+set(EXAMPLE_PROJECT_NAME ${PROJECT_NAME}_example)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(CMAKE_BUILD_TYPE Debug)
+
 option(BUILD_TESTS "Build tests" ON)
-# option(BUILD_EXAMPLE "Build example" ON)
+option(BUILD_EXAMPLE "Build example" ON)
 
 ###############################################
 ################## Library ####################
 ###############################################
 include(GNUInstallDirs)
 
+find_package(Eigen3 REQUIRED QUIET)
+
 add_library(${PROJECT_NAME}
     src/pid.cpp
-    src/mpc.cpp
-
-    # $<TARGET_OBJECTS:dealiaser>
 )
 
 target_include_directories(${PROJECT_NAME}
@@ -30,14 +31,18 @@ target_include_directories(${PROJECT_NAME}
         include
 )
 
+target_link_libraries(${PROJECT_NAME}
+    Eigen3::Eigen
+)
+
 ###############################################
 ################# Examples ####################
 ###############################################
-# if(BUILD_EXAMPLE)
-#     project(${EXAMPLE_PROJECT_NAME})
+if(BUILD_EXAMPLE)
+    project(${EXAMPLE_PROJECT_NAME})
     
-#     add_subdirectory(example)
-# endif() # BUILD_EXAMPLE
+    add_subdirectory(example)
+endif() # BUILD_EXAMPLE
 
 ###############################################
 ################ Unit Tests ###################

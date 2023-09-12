@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googletest)
 # Tests
 ################################
 add_executable(${TEST_PROJECT_NAME}
+    mpc_test.cpp
     pid_test.cpp
 
     $<TARGET_OBJECTS:controller>

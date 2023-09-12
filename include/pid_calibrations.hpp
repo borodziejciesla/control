@@ -2,8 +2,18 @@
 #define CONTROL_INCLUDE_PID_CALIBRATIONS_HPP_
 
 namespace control {
+  enum class PidType {
+    PID = 0,
+    PI = 1,
+    PD = 2,
+    P = 3,
+    I = 4
+  };
+  
   struct PidCalibrations {
     double tp = 0.0;
+
+    PidType pid_type = PidType::P;
 
     double kp = 0.0;
     double ti = 0.0;
