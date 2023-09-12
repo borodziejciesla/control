@@ -6,7 +6,7 @@
 namespace control {
   template <size_t state_size, size_t control_size>
   struct FslcCalibrations {
-    std::array<std::array<double, control_size>, state_size> control_gain;
+    std::array<std::array<double, state_size>, control_size> control_gain;
   };
 } //  namespace control
 

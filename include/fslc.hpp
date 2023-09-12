@@ -18,15 +18,15 @@ namespace control {
       using StateVector = Eigen::Vector<double, state_size>;
       using ControlVector = Eigen::Vector<double, control_size>;
 
-      using ControlGainMatrix = Eigen::Matrix<double, state_size, control_size>;
+      using ControlGainMatrix = Eigen::Matrix<double, control_size, state_size>;
 
     public:
       Fslc(void) = default;
       virtual ~Fslc(void) = default;
 
       void SetCalibrations(const FslcCalibrations<state_size, control_size> & calibrations) {
-        for (auto row = 0u; row < state_size; row++) {
-          for (auto col = 0u; col < control_size; col++)
+        for (auto row = 0u; row < control_size; row++) {
+          for (auto col = 0u; col < state_size; col++)
             control_gain_(row, col) = calibrations.control_gain.at(row).at(col);
         }
       }

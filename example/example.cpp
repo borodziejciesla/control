@@ -3,6 +3,7 @@
 
 #include "matplotlibcpp.hpp"
 
+#include "fslc.hpp"
 #include "mpc.hpp"
 #include "pid.hpp"
 
@@ -59,6 +60,17 @@ int main(void) {
   mpc_calibrations.control_matrix = {0.4679, 0.9516};
   
   mpc.SetCalibrations(mpc_calibrations);
+
+  // Create FSLC
+  control::Fslc<state_size, control_size> fslc;
+  
+  control::FslcCalibrations<state_size, control_size> fslc_calibrations;
+
+  fslc_calibrations.control_gain[0][0] = 0.3779;
+  fslc_calibrations.control_gain[0][1] = 0.9256;
+  
+  fslc.SetCalibrations(fslc_calibrations);
+
 
   /******** Run Simulations ********/
   constexpr auto simulation_length = 100u;
@@ -141,12 +153,42 @@ int main(void) {
     object.Run(control_vector);
   }
 
+  // FSLC
+  object.SetState(initial_state);
+
+  std::vector<double> fslc_control;
+  std::vector<double> fslc_x1;
+  std::vector<double> fslc_x2;
+  std::vector<double> fslc_output;
+
+  control::Fslc<state_size, control_size>::StateVectorInput fslc_value = {};
+  fslc.SetValue(fslc_value);
+
+  for (auto index = 0u; index < simulation_length; index++) {
+    const auto state = object.GetState();
+    fslc_x1.push_back(state(0u));
+    fslc_x2.push_back(state(1u));
+
+    const auto y = state(0u);
+    fslc_output.push_back(y);
+
+    std::array<double, 2u> state_array = {state(0u), state(1u)}; 
+    const auto control = fslc.GetControl(state_array);
+    fslc_control.push_back(control.at(0));
+
+    control_vector << control.at(0);
+
+    object.Run(control_vector);
+  }
+
+
   /******** Make Plots ********/
   // Output
   plt::figure_size(500, 500);
   plt::named_plot("No Control", timestamps, uncontrolled_output);
   plt::named_plot("PID", timestamps, pid_output);
   plt::named_plot("MPC", timestamps, mpc_output);
+  plt::named_plot("FSLC", timestamps, fslc_output);
   plt::title("Output");
   plt::legend();
   plt::save("./output.png");
@@ -155,6 +197,7 @@ int main(void) {
   plt::figure_size(500, 500);
   plt::named_plot("PID", timestamps, pid_control);
   plt::named_plot("MPC", timestamps, mpc_control);
+  plt::named_plot("FSLC", timestamps, fslc_control);
   plt::title("Control");
   plt::legend();
   plt::save("./control.png");
