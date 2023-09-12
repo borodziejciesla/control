@@ -8,9 +8,13 @@ class MpcTests : public ::testing::Test {
 };
 
 TEST_F(MpcTests, ConstructorTest) {
-    std::unique_ptr<control::Mpc<3u, 10u>> mpc;
-    mpc = std::make_unique<control::Mpc<3u, 10u>>();
-    //EXPECT_NO_THROW(mpc = std::make_unique<control::Mpc<3u, 10u>>());
+    constexpr auto state_size = 3u;
+    constexpr auto steps_number = 10u;
+
+    using MpcTest = control::Mpc<state_size, steps_number>;
+
+    std::unique_ptr<MpcTest> mpc;
+    EXPECT_NO_THROW(mpc = std::make_unique<MpcTest>());
 }
 
 TEST_F(MpcTests, RunCheckExceptionsTest) {

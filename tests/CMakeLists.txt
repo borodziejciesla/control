@@ -16,6 +16,7 @@ FetchContent_MakeAvailable(googletest)
 # Tests
 ################################
 add_executable(${TEST_PROJECT_NAME}
+    fslc_test.cpp
     mpc_test.cpp
     pid_test.cpp
 
