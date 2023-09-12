@@ -31,11 +31,12 @@ int main(void) {
   control::Pid pid;
 
   control::PidCalibrations pid_calibrations;
+  pid_calibrations.pid_type = control::PidType::PID;
   pid_calibrations.tp = 1.0;
-  pid_calibrations.kp = 0.0591468060510979;
-  pid_calibrations.ti = 1.0 / 0.0422741631781744;
-  pid_calibrations.td = 0.415679128351623;
-  pid_calibrations.nd = 1.03550294575802;
+  pid_calibrations.kp = 0.0641982971505295;
+  pid_calibrations.ti = 0.0482636982386738;
+  pid_calibrations.td = 4.26772888497946;
+  pid_calibrations.nd = 1.22748217535378;
   pid_calibrations.min_control = -inf;
   pid_calibrations.max_control = inf;
   pid_calibrations.use_d_filtering = true;

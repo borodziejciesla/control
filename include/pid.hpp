@@ -24,6 +24,8 @@ namespace control {
 
       void MakeSanityCheckOnParameters(const PidCalibrations & calibrations) const;
 
+      PidType pid_type_ = PidType::P;
+
       double tp_ = 0.0;
 
       double kp_ = 0.0;
