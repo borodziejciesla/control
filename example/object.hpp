@@ -4,12 +4,13 @@
 #include <Eigen/Dense>
 
 namespace control_example {
-  template <size_t state_size>
+  template <size_t state_size, size_t control_size>
   class Object {
     public:
       using TransitionMatrix = Eigen::Matrix<double, state_size, state_size>;
-      using ControlMatrix = Eigen::Matrix<double, state_size, 1u>;
+      using ControlMatrix = Eigen::Matrix<double, state_size, control_size>;
       using StateVector = Eigen::Vector<double, state_size>;
+      using ControlVector = Eigen::Vector<double, control_size>;
 
     public:
       Object(const TransitionMatrix & transition_matrix, const ControlMatrix & control_matrix)
@@ -20,7 +21,7 @@ namespace control_example {
         state_ = state;
       }
 
-      void Run(const double control) {
+      void Run(const ControlVector & control) {
         state_ = transition_matrix_ * state_ + control_matrix_ * control;
       }
 

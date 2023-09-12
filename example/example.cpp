@@ -15,15 +15,17 @@ double inf = std::numeric_limits<double>::infinity();
 int main(void) {
   /******** Define object ********/
   constexpr auto state_size = 2u;
+  constexpr auto control_size = 1u;
 
-  control_example::Object<state_size>::TransitionMatrix transition_matrix;
+  control_example::Object<state_size, control_size>::TransitionMatrix transition_matrix;
   transition_matrix << 0.9048, 0.9048, 0.0, 0.9048;
-  control_example::Object<state_size>::ControlMatrix control_matrix;
+  control_example::Object<state_size, control_size>::ControlMatrix control_matrix;
   control_matrix << 0.4679, 0.9516;
 
-  control_example::Object<state_size> object(transition_matrix, control_matrix);
+  control_example::Object<state_size, control_size> object(transition_matrix, control_matrix);
+  control_example::Object<state_size, control_size>::ControlVector control_vector;
 
-  control_example::Object<state_size>::StateVector initial_state;
+  control_example::Object<state_size, control_size>::StateVector initial_state;
   initial_state << 1.0, 1.0;
   
   /******** Create controllers ********/
@@ -80,7 +82,9 @@ int main(void) {
     const auto y = state(0u);
     uncontrolled_output.push_back(y);
 
-    object.Run(0.0);
+    control_vector << 0.0;
+
+    object.Run(control_vector);
   }
 
   // PID
@@ -104,7 +108,9 @@ int main(void) {
     const auto control = pid.GetControl(y);
     pid_control.push_back(control);
 
-    object.Run(control);
+    control_vector << control;
+
+    object.Run(control_vector);
   }
 
   // MPC
@@ -130,7 +136,9 @@ int main(void) {
     const auto control = mpc.GetControl(state_array);
     mpc_control.push_back(control);
 
-    object.Run(control);
+    control_vector << control;
+
+    object.Run(control_vector);
   }
 
   /******** Make Plots ********/
