@@ -1,4 +1,5 @@
 {
+    "editor.formatOnSave": true,
     "ros.distro": "humble",
     "files.associations": {
         "array": "cpp",

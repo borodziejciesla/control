@@ -1,13 +1,11 @@
 #include <limits>
 #include <vector>
 
-#include "matplotlibcpp.hpp"
-
 #include "fslc.hpp"
+#include "matplotlibcpp.hpp"
 #include "mpc.hpp"
-#include "pid.hpp"
-
 #include "object.hpp"
+#include "pid.hpp"
 
 namespace plt = matplotlibcpp;
 
@@ -28,13 +26,12 @@ int main(void) {
 
   control_example::Object<state_size, control_size>::StateVector initial_state;
   initial_state << 1.0, 1.0;
-  
+
   /******** Create controllers ********/
   // Create PID
   control::Pid pid;
 
   control::PidCalibrations pid_calibrations;
-  pid_calibrations.pid_type = control::PidType::PID;
   pid_calibrations.tp = 1.0;
   pid_calibrations.kp = 0.0641982971505295;
   pid_calibrations.ti = 0.0482636982386738;
@@ -50,7 +47,7 @@ int main(void) {
   // Create MPC
   constexpr auto prediction_steps_number = 2u;
   control::Mpc<state_size, prediction_steps_number> mpc;
-  
+
   control::MpcCalibrations<state_size, prediction_steps_number> mpc_calibrations;
 
   mpc_calibrations.q = {1.0, 1.0};
@@ -58,19 +55,18 @@ int main(void) {
   mpc_calibrations.transition_matrix.at(0u) = {0.9048, 0.9048};
   mpc_calibrations.transition_matrix.at(1u) = {0.0, 0.9048};
   mpc_calibrations.control_matrix = {0.4679, 0.9516};
-  
+
   mpc.SetCalibrations(mpc_calibrations);
 
   // Create FSLC
   control::Fslc<state_size, control_size> fslc;
-  
+
   control::FslcCalibrations<state_size, control_size> fslc_calibrations;
 
   fslc_calibrations.control_gain[0][0] = 0.3779;
   fslc_calibrations.control_gain[0][1] = 0.9256;
-  
-  fslc.SetCalibrations(fslc_calibrations);
 
+  fslc.SetCalibrations(fslc_calibrations);
 
   /******** Run Simulations ********/
   constexpr auto simulation_length = 100u;
@@ -144,7 +140,7 @@ int main(void) {
     const auto y = state(0u);
     mpc_output.push_back(y);
 
-    std::array<double, 2u> state_array = {state(0u), state(1u)}; 
+    std::array<double, 2u> state_array = {state(0u), state(1u)};
     const auto control = mpc.GetControl(state_array);
     mpc_control.push_back(control);
 
@@ -172,7 +168,7 @@ int main(void) {
     const auto y = state(0u);
     fslc_output.push_back(y);
 
-    std::array<double, 2u> state_array = {state(0u), state(1u)}; 
+    std::array<double, 2u> state_array = {state(0u), state(1u)};
     const auto control = fslc.GetControl(state_array);
     fslc_control.push_back(control.at(0));
 
@@ -180,7 +176,6 @@ int main(void) {
 
     object.Run(control_vector);
   }
-
 
   /******** Make Plots ********/
   // Output
