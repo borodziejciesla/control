@@ -45,13 +45,13 @@ int main(void) {
   pid.SetCalibrations(pid_calibrations);
 
   // Create MPC
-  constexpr auto prediction_steps_number = 2u;
+  constexpr auto prediction_steps_number = 10u;
   control::Mpc<state_size, prediction_steps_number> mpc;
 
   control::MpcCalibrations<state_size, prediction_steps_number> mpc_calibrations;
 
   mpc_calibrations.q = {1.0, 1.0};
-  mpc_calibrations.r = {1.0, 1.0};
+  mpc_calibrations.r = 0.1;
   mpc_calibrations.transition_matrix.at(0u) = {0.9048, 0.9048};
   mpc_calibrations.transition_matrix.at(1u) = {0.0, 0.9048};
   mpc_calibrations.control_matrix = {0.4679, 0.9516};
