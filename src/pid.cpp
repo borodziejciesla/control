@@ -1,5 +1,6 @@
 #include "pid.hpp"
 
+#include <cmath>
 #include <stdexcept>
 
 namespace control {
@@ -46,9 +47,12 @@ double Pid::GetControl(const double y) {
 
   control_ = CalculateProportionalPart() + CalculateIntegralPart() + CalculateDerivativePart();
 
-  saturated_control_ = SaturateControl(control_);
+  control_ = SaturateControl(control_);
+  control_ = RateLimitControl(control_);
 
-  return saturated_control_;
+  prev_control_ = control_;
+
+  return control_;
 }
 
 double Pid::CalculateProportionalPart(void) const { return error_ * kp_; }
@@ -79,6 +83,16 @@ double Pid::SaturateControl(const double control) const {
     return max_control_;
   else
     return control;
+}
+
+double Pid::RateLimitControl(const double control) const {
+  const auto control_delta = control - prev_control_;
+  const auto control_rate = control_delta / tp_;
+  if (std::abs(control_rate) > rate_limit_) {
+    return prev_control_ + tp_ * rate_limit_;
+  } else {
+    return control;
+  }
 }
 
 void Pid::MakeSanityCheckOnParameters(const PidCalibrations& calibrations) const {
